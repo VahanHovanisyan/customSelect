@@ -52,7 +52,8 @@ class CustomSelect {
     this.selectList.classList.toggle('select-list-show', open);
     this.selectBtn.classList.toggle('select-btn-active', open);
     this.selectBtn.setAttribute('aria-expanded', open.toString());
-    this.selectBtn.type = open ? 'button' : 'submit';
+    this.selectBtn.type = 'button';
+    this.selectBtn.setAttribute('aria-label', open ? 'close select list' : 'open select list');
   }
 
   selectOpen() {
@@ -98,7 +99,11 @@ class CustomSelect {
     const currentItem = e.target.closest('.select-item');
 
     if (e.target === this.selectBtn) {
-      this.selectOpen();
+      if (this.selectList.classList.contains('select-list-show') && this.selectBtn.classList.contains('select-btn-active') && !this.options.mouseEvent) {
+        this.selectClose();
+      } else {
+        this.selectOpen();
+      }
     }
 
     if (currentItem) {
