@@ -1,7 +1,7 @@
 class CustomSelect {
   constructor(selectElem, options) {
     let defaultOptions = {
-      mouseEvent : this.mouseEvent,
+      mouseEvent: this.mouseEvent,
       turn: this.turn,
       storage: this.storage,
       elem: selectElem
@@ -15,10 +15,19 @@ class CustomSelect {
 
     if (this.options.storage && localStorage.getItem(this.options.elem)) {
       this.selectBtn.textContent = localStorage.getItem(this.options.elem);
+      this.selectOptions.forEach(option => {
+        if (option.textContent === localStorage.getItem(this.options.elem)) {
+          option.classList.add('select-option-selected');
+        } else {
+          option.classList.remove('select-option-selected');
+        }
+        if (option.textContent === localStorage.getItem(this.options.elem) && this.options.turn) {
+          option.hidden = true
+        }
+      });
     } else {
       localStorage.removeItem(this.options.elem);
     }
-    
     this.setAttributes();
     this.handleSelectEvent = this.handleSelectEvent.bind(this);
     this.selectCloseBtn = this.selectCloseBtn.bind(this);
@@ -65,15 +74,19 @@ class CustomSelect {
   selectOption(currentOption) {
     currentOption.type = 'button';
     if (this.options.turn) {
-      this.selectOptions.forEach(option => {option.hidden = false});
+      this.selectOptions.forEach(option => option.hidden = false);
       currentOption.hidden = true;
     }
     if (this.options.storage) {
       localStorage.removeItem(this.options.elem);
       this.selectBtn.textContent = localStorage.getItem(this.options.elem);
-      localStorage.setItem(this.options.elem,currentOption.dataset.selectValue);
-    } else  {
+      localStorage.setItem(this.options.elem, currentOption.textContent);
+      this.selectOptions.forEach(option => option.classList.remove('select-option-selected'));
+      currentOption.classList.add('select-option-selected')
+    } else {
       localStorage.removeItem(this.options.elem);
+      this.selectOptions.forEach(option => option.classList.remove('select-option-selected'));
+      currentOption.classList.add('select-option-selected')
     }
     this.selectBtn.textContent = currentOption.textContent;
     this.selectInput.value = currentOption.dataset.selectValue;
