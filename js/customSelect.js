@@ -23,6 +23,7 @@ class CustomSelect {
         if (option.dataset.selectValue === localStorage.getItem(this._elem)) {
           option.classList.add('select-option-selected');
           this.selectBtn.innerHTML = option.innerHTML;
+          this.selectInput.value = option.dataset.selectValue
         } else {
           option.classList.remove('select-option-selected');
         }
