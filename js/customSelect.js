@@ -13,6 +13,10 @@ class CustomSelect {
     this.selectOptions = this.select?.querySelectorAll('.select-option');
     this.selectInput = this.select?.querySelector('.select-input');
 
+    if (this.isMobile.any()) {
+      this.options.mouseEvent = false
+    }
+
     if (this.options.storage && localStorage.getItem(this._elem)) {
       this._storageDate = localStorage.getItem(this._elem);
       this.selectBtn.textContent = localStorage.getItem(this._elem);
@@ -23,7 +27,7 @@ class CustomSelect {
           option.classList.remove('select-option-selected');
         }
         if (option.textContent === localStorage.getItem(this._elem) && this.options.turn) {
-          option.hidden = true
+          option.style.cssText = this.selectOptionTurnStyle;
         }
       });
     } else {
@@ -41,13 +45,53 @@ class CustomSelect {
     this.select?.addEventListener('click', this.handleSelectEvent);
   }
 
+  selectOptionTurnStyle = `
+  position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	border: 0;
+	padding: 0;
+	white-space: nowrap;
+	clip-path: inset(100%);
+	clip: rect(0 0 0 0);
+	overflow: hidden;
+  `
+
+  isMobile = {
+    Android() {
+      return navigator.userAgent.match(/Android/i);
+    },
+    BlackBerry() {
+      return navigator.userAgent.match(/BlackBerry/i);
+    },
+    iOS() {
+      return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+    },
+    Opera() {
+      return navigator.userAgent.match(/Opera Mini/i);
+    },
+    Windows() {
+      return navigator.userAgent.match(/IEMobile/i);
+    },
+    any() {
+      return (
+        this.Android() ||
+        this.BlackBerry() ||
+        this.iOS() ||
+        this.Opera() ||
+        this.Windows());
+    }
+  };
+
   setAttributes() {
     this.selectBtn.type = 'button';
-    this.selectOptions.forEach(option => option.type = 'button');
     this.selectBtn.setAttribute('aria-label', 'open select list');
     this.selectBtn.setAttribute('aria-controls', 'select-list');
     this.selectBtn.setAttribute('aria-expanded', 'false');
     this.selectList.id = 'select-list';
+    this.selectOptions.forEach(option => option.type = 'button');
+    this.selectInput.hidden = true;
   }
 
   selectCloseBtn(e) {
@@ -89,8 +133,8 @@ class CustomSelect {
 
   selectOption(currentOption) {
     if (this.options.turn) {
-      this.selectOptions.forEach(option => option.hidden = false);
-      currentOption.hidden = true;
+      this.selectOptions.forEach(option => option.style.cssText = '');
+      currentOption.style.cssText = this.selectOptionTurnStyle;
     }
     if (this.options.storage) {
       localStorage.removeItem(this._elem);
@@ -117,7 +161,8 @@ class CustomSelect {
         this.selectBtn.classList.contains('select-btn-active') &&
         !this.options.mouseEvent) {
         this.selectClose();
-      } else {
+      }
+      else {
         this.selectOpen();
       }
     }
