@@ -7,17 +7,15 @@ class CustomSelect {
     }
     this._elem = selectElem;
     this._storageDate = localStorage.getItem(this._elem);
-    
+
     this.options = Object.assign(defaultOptions, options);
     this.select = document.querySelector(`[data-select='${selectElem}']`);
     this.selectBtn = this.select?.querySelector('.select-btn');
     this.selectList = this.select?.querySelector('.select-list');
     this.selectOptions = this.select?.querySelectorAll('.select-option');
     this.selectInput = this.select?.querySelector('.select-input');
-    
-    if (this.isMobile.any()) {
-      this.options.mouseEvent = false;
-    }
+
+    if (this.isMobile.any()) this.options.mouseEvent = false;
 
     if (this.options.storage && localStorage.getItem(this._elem)) {
       this.selectOptions.forEach(option => {
@@ -44,6 +42,28 @@ class CustomSelect {
       this.select?.addEventListener('mouseenter', this.selectOpen.bind(this));
       this.select?.addEventListener('mouseleave', this.selectClose.bind(this));
     }
+    this.selectOptions.forEach((item, index) => {
+      item.addEventListener('keydown', event => {
+        if (event.key === 'ArrowUp') {
+          // Если нажата клавиша влево, выбираем предыдущий таб
+          const prevIndex = (index - 1 + this.selectOptions.length) % this.selectOptions.length;
+          this.selectOptions[prevIndex].focus();
+          event.preventDefault();
+          console.log('up');
+        } else if (event.key === 'ArrowDown') {
+          // Если нажата клавиша вправо, выбираем следующий таб
+          const nextIndex = (index + 1) % this.selectOptions.length;
+          this.selectOptions[nextIndex].focus();
+          event.preventDefault();
+          console.log('down');
+        }
+        // else if (event.key === 'Enter' || event.key === ' ') {
+        //   // Если нажата клавиша Enter или пробел, активируем таб
+        //   item.click();
+        //   event.preventDefault();
+        // }
+      });
+    });
     this.select?.addEventListener('click', this.handleSelectEvent);
   }
 
@@ -80,9 +100,7 @@ class CustomSelect {
     this.selectBtn.setAttribute('aria-expanded', 'false');
     this.selectList.id = 'select-list';
     this.selectOptions.forEach(option => option.type = 'button');
-    if (this.selectInput) {
-      this.selectInput.hidden = true;
-    }
+    if (this.selectInput) this.selectInput.hidden = true;
   }
 
   selectOpen() {
@@ -94,17 +112,11 @@ class CustomSelect {
   }
 
   selectCloseBtn(e) {
-    if (e.key === 'Escape' || e.key === 'Tab') {
-      console.log('btn');
-      this.selectClose();
-    }
+    // if (e.key === 'Escape' || e.key === 'Tab') this.selectClose();
   }
 
   selectCloseClick(e) {
-    if (e.target !== this.selectBtn) {
-      console.log('click');
-      this.selectClose();
-    }
+    if (e.target !== this.selectBtn) this.selectClose();
   }
 
   toggleSelect(open) {
@@ -141,9 +153,7 @@ class CustomSelect {
       currentOption.classList.add('select-option-selected');
     }
     this.selectBtn.innerHTML = currentOption.innerHTML;
-    if (this.selectInput) {
-      this.selectInput.value = currentOption.dataset.selectValue;
-    }
+    if (this.selectInput) this.selectInput.value = currentOption.dataset.selectValue;
     this.selectClose();
   }
 
@@ -162,12 +172,9 @@ class CustomSelect {
       }
     }
 
-    if (currentItem) {
-      e.stopPropagation();
-    }
+    if (currentItem) e.stopPropagation();
 
-    if (currentOption) {
-      this.selectOption(currentOption);
-    }
+    if (currentOption) this.selectOption(currentOption);
+
   }
 }
