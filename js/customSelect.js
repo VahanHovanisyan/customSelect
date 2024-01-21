@@ -14,7 +14,7 @@ class CustomSelect {
     this.selectList = this.select?.querySelector('.select-list');
     this.selectOptions = this.select?.querySelectorAll('.select-option');
     this.selectInput = this.select?.querySelector('.select-input');
-
+    this.buttons = this.select?.querySelectorAll('button');
     if (this.isMobile.any()) this.options.mouseEvent = false;
 
     if (this.options.storage && localStorage.getItem(this._elem)) {
@@ -42,18 +42,18 @@ class CustomSelect {
       this.select?.addEventListener('mouseenter', this.selectOpen.bind(this));
       this.select?.addEventListener('mouseleave', this.selectClose.bind(this));
     }
-    this.selectOptions.forEach((item, index) => {
+    this.buttons.forEach((item, index) => {
       item.addEventListener('keydown', event => {
         if (event.key === 'ArrowUp') {
           // Если нажата клавиша влево, выбираем предыдущий таб
-          const prevIndex = (index - 1 + this.selectOptions.length) % this.selectOptions.length;
-          this.selectOptions[prevIndex].focus();
+          const prevIndex = (index - 1 + this.buttons.length) % this.buttons.length;
+          this.buttons[prevIndex].focus();
           event.preventDefault();
           console.log('up');
         } else if (event.key === 'ArrowDown') {
           // Если нажата клавиша вправо, выбираем следующий таб
-          const nextIndex = (index + 1) % this.selectOptions.length;
-          this.selectOptions[nextIndex].focus();
+          const nextIndex = (index + 1) % this.buttons.length;
+          this.buttons[nextIndex].focus();
           event.preventDefault();
           console.log('down');
         }
