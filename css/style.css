@@ -112,3 +112,7 @@ body {
 .select-option:hover {
     background-color: #ccc;
 }
+
+.select-option:focus-visible {
+    background-color: #ccc;
+}

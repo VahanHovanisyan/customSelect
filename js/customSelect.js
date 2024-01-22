@@ -1,13 +1,13 @@
 class CustomSelect {
   constructor(selectElem, options) {
-    let defaultOptions = {
+    const defaultOptions = {
       mouseEvent: this.mouseEvent,
       turn: this.turn,
       storage: this.storage,
-    }
+    };
+
     this._elem = selectElem;
     this._storageDate = localStorage.getItem(this._elem);
-
     this.options = Object.assign(defaultOptions, options);
     this.select = document.querySelector(`[data-select='${selectElem}']`);
     this.selectBtn = this.select?.querySelector('.select-btn');
@@ -15,26 +15,24 @@ class CustomSelect {
     this.selectOptions = this.select?.querySelectorAll('.select-option');
     this.selectInput = this.select?.querySelector('.select-input');
     this.buttons = this.select?.querySelectorAll('button');
+    
     if (this.isMobile.any()) this.options.mouseEvent = false;
 
-    if (this.options.storage && localStorage.getItem(this._elem)) {
+    if (this.options.storage && this._storageDate) {
       this.selectOptions.forEach(option => {
-        if (option.dataset.selectValue === localStorage.getItem(this._elem)) {
-          option.classList.add('select-option-selected');
+        const isOptionSelected = option.dataset.selectValue === this._storageDate;
+        option.classList.toggle('select-option-selected', isOptionSelected);
+        if (isOptionSelected) {
           this.selectBtn.innerHTML = option.innerHTML;
           this.selectInput.value = option.dataset.selectValue;
-        } else {
-          option.classList.remove('select-option-selected');
         }
-        if (option.dataset.selectValue === localStorage.getItem(this._elem) && this.options.turn) {
-          option.hidden = true
-        }
+        if (isOptionSelected && this.options.turn) {option.classList.add('visually-hidden');}
       });
-    } else {
-      localStorage.removeItem(this._elem);
-    }
+    } else {localStorage.removeItem(this._elem);}
+
     this.setAttributes();
-    this.handleSelectEvent = this.handleSelectEvent.bind(this);
+    this.handleSelectEventClick = this.handleSelectEvent.bind(this);
+    this.handleSelectEventKey = this.controlSelectHaveArrowKey.bind(this);
     this.selectCloseBtn = this.selectCloseBtn.bind(this);
     this.selectCloseClick = this.selectCloseClick.bind(this);
 
@@ -42,54 +40,20 @@ class CustomSelect {
       this.select?.addEventListener('mouseenter', this.selectOpen.bind(this));
       this.select?.addEventListener('mouseleave', this.selectClose.bind(this));
     }
-    this.buttons.forEach((item, index) => {
-      item.addEventListener('keydown', event => {
-        if (event.key === 'ArrowUp') {
-          // Если нажата клавиша влево, выбираем предыдущий таб
-          const prevIndex = (index - 1 + this.buttons.length) % this.buttons.length;
-          this.buttons[prevIndex].focus();
-          event.preventDefault();
-          console.log('up');
-        } else if (event.key === 'ArrowDown') {
-          // Если нажата клавиша вправо, выбираем следующий таб
-          const nextIndex = (index + 1) % this.buttons.length;
-          this.buttons[nextIndex].focus();
-          event.preventDefault();
-          console.log('down');
-        }
-        // else if (event.key === 'Enter' || event.key === ' ') {
-        //   // Если нажата клавиша Enter или пробел, активируем таб
-        //   item.click();
-        //   event.preventDefault();
-        // }
-      });
-    });
-    this.select?.addEventListener('click', this.handleSelectEvent);
+
+    this.select?.addEventListener('click', this.handleSelectEventClick);
+    this.select?.addEventListener('keydown', this.handleSelectEventKey);
   }
 
   isMobile = {
-    Android() {
-      return navigator.userAgent.match(/Android/i);
-    },
-    BlackBerry() {
-      return navigator.userAgent.match(/BlackBerry/i);
-    },
-    iOS() {
-      return navigator.userAgent.match(/iPhone|iPad|iPod/i);
-    },
-    Opera() {
-      return navigator.userAgent.match(/Opera Mini/i);
-    },
-    Windows() {
-      return navigator.userAgent.match(/IEMobile/i);
-    },
+    Android() { return navigator.userAgent.match(/Android/i); },
+    BlackBerry() { return navigator.userAgent.match(/BlackBerry/i); },
+    iOS() { return navigator.userAgent.match(/iPhone|iPad|iPod/i); },
+    Opera() { return navigator.userAgent.match(/Opera Mini/i); },
+    Windows() { return navigator.userAgent.match(/IEMobile/i); },
     any() {
-      return (
-        this.Android() ||
-        this.BlackBerry() ||
-        this.iOS() ||
-        this.Opera() ||
-        this.Windows());
+      return ['Android', 'BlackBerry', 'iOS', 'Opera', 'Windows']
+        .some(platform => this[platform]?.() ?? false);
     }
   };
 
@@ -100,35 +64,36 @@ class CustomSelect {
     this.selectBtn.setAttribute('aria-expanded', 'false');
     this.selectList.id = 'select-list';
     this.selectOptions.forEach(option => option.type = 'button');
-    if (this.selectInput) this.selectInput.hidden = true;
+    this.selectInput?.setAttribute('hidden', 'true');
   }
 
-  selectOpen() {
-    this.toggleSelect(true);
-  }
-
-  selectClose() {
-    this.toggleSelect(false);
-  }
+  selectOpen() { this.toggleSelect(true);}
+  selectClose() { this.toggleSelect(false);}
 
   selectCloseBtn(e) {
-    // if (e.key === 'Escape' || e.key === 'Tab') this.selectClose();
+    if (e.key === 'Escape' || e.key === 'Tab') this.selectClose();
   }
 
-  selectCloseClick(e) {
-    if (e.target !== this.selectBtn) this.selectClose();
+  controlSelectHaveArrowKey(event) {
+    const buttonIndex = Array.from(this.buttons).indexOf(event.target);
+    if (buttonIndex !== -1) {
+      const offset = event.code === 'ArrowUp' ? -1 : event.code === 'ArrowDown' ? 1 : 0;
+      const nextIndex = (buttonIndex + offset + this.buttons.length) % this.buttons.length;
+      this.buttons[nextIndex].focus();
+    }
   }
+
+  selectCloseClick(e) { if (e.target !== this.selectBtn) this.selectClose(); }
 
   toggleSelect(open) {
-    this.selectList.classList.toggle('select-list-show', open);
-    this.selectBtn.classList.toggle('select-btn-active', open);
-    this.selectBtn.setAttribute('aria-expanded', open.toString());
-    this.selectBtn.setAttribute('aria-label', open ? 'close select list' : 'open select list');
+    this.selectList?.classList.toggle('select-list-show', open);
+    this.selectBtn?.classList.toggle('select-btn-active', open);
+    this.selectBtn?.setAttribute('aria-expanded', open.toString());
+    this.selectBtn?.setAttribute('aria-label', open ? 'close select list' : 'open select list');
     if (open && !this.options.mouseEvent) {
       document.body.addEventListener('click', this.selectCloseClick);
       document.body.addEventListener('keydown', this.selectCloseBtn);
-    }
-    else {
+    } else {
       document.body.removeEventListener('click', this.selectCloseClick);
       document.body.removeEventListener('keydown', this.selectCloseBtn);
     }
@@ -136,24 +101,26 @@ class CustomSelect {
 
   selectOption(currentOption) {
     if (this.options.turn) {
-      this.selectOptions.forEach(option => option.hidden = false);
-      currentOption.hidden = true
+      this.selectOptions.forEach(option => option.classList.remove('visually-hidden'));
+      currentOption.classList.add('visually-hidden');
     }
+
     if (this.options.storage) {
       localStorage.removeItem(this._elem);
-      if (currentOption.dataset.selectValue === localStorage.getItem(this._elem)) {
+      if (currentOption.dataset.selectValue === this._storageDate) {
         this.selectBtn.innerHTML = currentOption.innerHTML;
       }
       localStorage.setItem(this._elem, currentOption.dataset.selectValue);
       this.selectOptions.forEach(option => option.classList.remove('select-option-selected'));
-      currentOption.classList.add('select-option-selected')
+      currentOption.classList.add('select-option-selected');
     } else {
       localStorage.removeItem(this._elem);
       this.selectOptions.forEach(option => option.classList.remove('select-option-selected'));
       currentOption.classList.add('select-option-selected');
     }
+
     this.selectBtn.innerHTML = currentOption.innerHTML;
-    if (this.selectInput) this.selectInput.value = currentOption.dataset.selectValue;
+    this.selectInput?.setAttribute('value', currentOption.dataset.selectValue);
     this.selectClose();
   }
 
@@ -162,12 +129,11 @@ class CustomSelect {
     const currentItem = e.target.closest('.select-item');
 
     if (e.target === this.selectBtn) {
-      if (this.selectList.classList.contains('select-list-show') &&
-        this.selectBtn.classList.contains('select-btn-active') &&
-        !this.options.mouseEvent) {
+      if (this.selectList?.classList.contains('select-list-show') &&
+          this.selectBtn?.classList.contains('select-btn-active') &&
+          !this.options.mouseEvent) {
         this.selectClose();
-      }
-      else {
+      } else {
         this.selectOpen();
       }
     }
@@ -175,6 +141,5 @@ class CustomSelect {
     if (currentItem) e.stopPropagation();
 
     if (currentOption) this.selectOption(currentOption);
-
   }
 }
