@@ -1,20 +1,3 @@
-*,
-*::before,
-*::after {
-    box-sizing: inherit;
-}
-
-html {
-    box-sizing: border-box;
-    height: 100%;
-}
-
-body {
-    font-family: Arial, Verdana, sans-serif;
-    margin: 0;
-    height: 100%;
-}
-
 .visually-hidden {
 	position: absolute;
 	width: 1px;
@@ -28,14 +11,10 @@ body {
 	overflow: hidden;
 }
 
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 15px;
-}
 .select{
     max-width: 250px;
     position: relative;
+    box-sizing: border-box;
 }
 
 .select-open .select-btn:after{
@@ -43,6 +22,7 @@ body {
 }
 .select-btn {
     position: relative;
+    box-sizing: inherit;
     display: block;
     padding: 0;
     border: none;
@@ -63,6 +43,7 @@ body {
     content: "\25BC";
     position: absolute;
     right: 15px;
+    box-sizing: inherit;
     transition: transform .3s ease 0s;
 }
 
@@ -76,6 +57,7 @@ body {
     left: 0;
     right: 0;
     z-index: 1;
+    box-sizing: inherit;
     list-style: none;
     padding: 0;
     margin: 0;
@@ -96,6 +78,7 @@ body {
 }
 
 .select-option {
+    box-sizing: inherit;
     padding: 0;
     border: none;
     background: transparent;
