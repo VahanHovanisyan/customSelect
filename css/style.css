@@ -20,6 +20,7 @@
 .select-open .select-btn:after{
     transform: rotate(180deg);
 }
+
 .select-btn {
     position: relative;
     box-sizing: inherit;
