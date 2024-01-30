@@ -9,6 +9,3 @@ if (document.querySelector("[data-select='select2']")) {
     mouseEvent: true
   });
 }
-
-// const buttonIndex = [1,2,3,4,5];
-// console.log(buttonIndex.indexOf(0));

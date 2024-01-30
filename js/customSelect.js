@@ -14,8 +14,7 @@ class CustomSelect {
     this.selectList = this.select?.querySelector('.select-list');
     this.selectOptions = this.select?.querySelectorAll('.select-option');
     this.selectInput = this.select?.querySelector('.select-input');
-    this.buttons = this.select?.querySelectorAll('button');
-    
+
     if (this.isMobile.any()) this.options.mouseEvent = false;
 
     if (this.options.storage && this._storageDate) {
@@ -26,9 +25,9 @@ class CustomSelect {
           this.selectBtn.innerHTML = option.innerHTML;
           this.selectInput.value = option.dataset.selectValue;
         }
-        if (isOptionSelected && this.options.turn) {option.classList.add('visually-hidden');}
+        isOptionSelected && this.options.turn && option.classList.add('visually-hidden');
       });
-    } else {localStorage.removeItem(this._elem);}
+    } else { localStorage.removeItem(this._elem); }
 
     this.setAttributes();
     this.handleSelectEventClick = this.handleSelectEvent.bind(this);
@@ -67,23 +66,21 @@ class CustomSelect {
     this.selectInput?.setAttribute('hidden', 'true');
   }
 
-  selectOpen() { this.toggleSelect(true);}
-  selectClose() { this.toggleSelect(false);}
+  selectOpen() { return this.toggleSelect(true); }
+  selectClose() { return this.toggleSelect(false); }
 
   selectCloseBtn(e) {
-    if (e.key === 'Escape' || e.key === 'Tab') this.selectClose();
+    (e.code === 'Escape' || e.code === 'Tab') && this.selectClose();
   }
 
   controlSelectHaveArrowKey(event) {
-    const buttonIndex = Array.from(this.buttons).indexOf(event.target);
-    if (buttonIndex !== -1) {
-      const offset = event.code === 'ArrowUp' ? -1 : event.code === 'ArrowDown' ? 1 : 0;
-      const nextIndex = (buttonIndex + offset + this.buttons.length) % this.buttons.length;
-      this.buttons[nextIndex].focus();
-    }
+    const buttonIndex = Array.from(this.selectOptions).indexOf(event.target);
+    const offset = event.code === 'ArrowUp' ? -1 : event.code === 'ArrowDown' ? 1 : 0;
+    const nextIndex = (buttonIndex + offset + this.selectOptions.length) % this.selectOptions.length;
+    this.selectOptions[nextIndex].focus();
   }
 
-  selectCloseClick(e) { if (e.target !== this.selectBtn) this.selectClose(); }
+  selectCloseClick(e) { e.target !== this.selectBtn && this.selectClose(); }
 
   toggleSelect(open) {
     this.selectList?.classList.toggle('select-list-show', open);
@@ -130,16 +127,16 @@ class CustomSelect {
 
     if (e.target === this.selectBtn) {
       if (this.selectList?.classList.contains('select-list-show') &&
-          this.selectBtn?.classList.contains('select-btn-active') &&
-          !this.options.mouseEvent) {
+        this.selectBtn?.classList.contains('select-btn-active') &&
+        !this.options.mouseEvent) {
         this.selectClose();
       } else {
         this.selectOpen();
       }
     }
 
-    if (currentItem) e.stopPropagation();
+    currentItem && e.stopPropagation();
 
-    if (currentOption) this.selectOption(currentOption);
+    currentOption && this.selectOption(currentOption);
   }
 }
